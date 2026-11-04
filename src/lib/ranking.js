@@ -11,7 +11,7 @@ export const TIERS = [
 ];
 export const CHOICES = TIERS.slice(0, 4);
 export const tierName = Object.fromEntries(TIERS);
-const KEY = 'haustrodun-2026-react-v1';
+const KEY = 'Listvinir-2026-react-v1';
 
 export const blank = () => ({
   tiers: { love: [], like: [], mid: [], pass: [], none: WORKS.map((w) => w.id) },
