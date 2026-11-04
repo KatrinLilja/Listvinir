@@ -290,3 +290,13 @@ dialog::backdrop{background:var(--veil)}
 
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--on-ink);font-weight:600;padding:10px 16px;border-radius:3px;z-index:30;max-width:calc(100vw - 32px)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* Moving the list to another device. */
+.sharebtn{font-weight:600;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink);padding:3px 9px;border-radius:3px;white-space:nowrap}
+.sharebtn:hover{background:var(--ink);color:var(--on-ink)}
+#sharedlg,#importdlg{width:min(460px,calc(100vw - 24px))}
+#sharedlg .close{position:absolute;top:0;right:0;float:none;margin:0}
+.sharepop{padding:18px 20px 20px;display:grid;gap:12px}
+.sharepop .tierh,.sharepop p{margin:0}
+.sharepop .qr{width:min(280px,100%);justify-self:center;aspect-ratio:1;background:#fff;border-radius:6px}
+.sharebtns{display:flex;flex-wrap:wrap;gap:8px}

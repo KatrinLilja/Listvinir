@@ -9,6 +9,8 @@ import Umbod from './components/Umbod.jsx';
 import Sources from './components/Sources.jsx';
 import WorkDialog from './components/WorkDialog.jsx';
 import SourceDialog from './components/SourceDialog.jsx';
+import ShareDialog, { ImportDialog } from './components/ShareDialog.jsx';
+import { readShareHash, unpackState } from './lib/share.js';
 
 const VIEWS = [
   ['flokka', 'Flokka'],
@@ -32,6 +34,8 @@ export default function App() {
   const [toastText, setToastText] = useState('');
   const [saved, setSaved] = useState('Vistað í þessum vafra');
   const toastTimer = useRef();
+  const [sharing, setSharing] = useState(false);
+  const [incoming, setIncoming] = useState(null);
 
   const toast = useCallback((text) => {
     setToastText(text);
@@ -54,14 +58,39 @@ export default function App() {
     location.hash = v;
   }, []);
 
+  // A share link carries the list in the hash. Read it, then drop it from the address bar.
+  const checkShare = useCallback(() => {
+    const packed = readShareHash();
+    if (!packed) return false;
+    history.replaceState(null, '', location.pathname + location.search);
+    setSharing(false);
+    try {
+      setIncoming(unpackState(packed));
+    } catch (e) {
+      toast('Ekki tókst að lesa listann úr hlekknum');
+    }
+    return true;
+  }, [toast]);
+
+  const acceptIncoming = useCallback(() => {
+    const local = stateRef.current;
+    apply((s) => {
+      Object.assign(s, structuredClone(incoming), { taken: local.taken });
+    });
+    setIncoming(null);
+    toast('Listinn er kominn í þetta tæki');
+  }, [apply, incoming, toast]);
+
   useEffect(() => {
+    checkShare();
     const onHash = () => {
+      if (checkShare()) return;
       setView(readView());
       window.scrollTo(0, 0);
     };
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
-  }, []);
+  }, [checkShare]);
 
   const chooseDuel = useCallback(
     (res) => {
@@ -88,7 +117,7 @@ export default function App() {
 
   useEffect(() => {
     const onKey = (e) => {
-      if (workId || srcId || e.metaKey || e.ctrlKey || e.altKey || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+      if (workId || srcId || sharing || incoming || e.metaKey || e.ctrlKey || e.altKey || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
       const s = stateRef.current;
       if (view === 'flokka') {
         const i = WORKS.findIndex((w) => w.id === s.cur);
@@ -108,7 +137,7 @@ export default function App() {
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [apply, chooseDuel, sortWork, srcId, view, workId]);
+  }, [apply, chooseDuel, incoming, sharing, sortWork, srcId, view, workId]);
 
   const ctx = useMemo(
     () => ({ state, apply, toast, nav, chooseDuel, sortWork, openWork: setWorkId, openSrc: setSrcId }),
@@ -130,6 +159,7 @@ export default function App() {
           <div className="status num">
             <span>{sortedCount(state)}/{WORKS.length} flokkuð</span>
             <span aria-live="polite">{saved}</span>
+            <button className="sharebtn" onClick={() => setSharing(true)}>Flytja lista</button>
           </div>
         </div>
       </header>
@@ -145,6 +175,8 @@ export default function App() {
       </main>
       <WorkDialog id={workId} onClose={() => setWorkId(null)} />
       <SourceDialog id={srcId} onClose={() => setSrcId(null)} />
+      <ShareDialog open={sharing} state={state} onClose={() => setSharing(false)} toast={toast} />
+      <ImportDialog incoming={incoming} onAccept={acceptIncoming} onCancel={() => setIncoming(null)} />
       <div id="toast" role="status" hidden={!toastText}>{toastText}</div>
     </AppContext.Provider>
   );
