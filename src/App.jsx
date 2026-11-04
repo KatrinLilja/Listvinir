@@ -119,7 +119,7 @@ export default function App() {
     <AppContext.Provider value={ctx}>
       <header className="bar gutter">
         <div className="wrap barin">
-          <h1 className="brand">Hauströðun 2026</h1>
+          <h1 className="brand">Listvinir 2026</h1>
           <nav aria-label="Skref">
             {VIEWS.map(([v, label]) => (
               <a key={v} href={`#${v}`} aria-current={view === v ? 'page' : undefined}>

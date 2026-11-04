@@ -37,7 +37,7 @@ export async function exportXlsx(s) {
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Röðun');
   const buf = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
-  saveFile('haustrodun-2026.xlsx', buf, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  saveFile('listvinir-2026.xlsx', buf, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 }
 
 const pdfSafe = (s) => String(s).replace(/[“”„]/g, '"').replace(/[‘’]/g, "'").replace(/[–—]/g, '-');
@@ -63,12 +63,12 @@ export async function exportPdf(s) {
   const imgs = await Promise.all(ids.map(imgData));
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const W = 210, H = 297, M = 16, rowH = 23, th = 19;
-  doc.setProperties({ title: 'Hauströðun 2026' });
+  doc.setProperties({ title: 'Listvinir 2026' });
   let y = M;
   let last = null;
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(24);
-  doc.text(pdfSafe('Hauströðun 2026'), M, y + 6);
+  doc.text(pdfSafe('Listvinir 2026'), M, y + 6);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.setTextColor(90);
@@ -123,7 +123,7 @@ export async function exportPdf(s) {
     doc.setTextColor(90);
     doc.text(`${p} / ${pages}`, W - M, H - 8, { align: 'right' });
   }
-  saveFile('haustrodun-2026.pdf', doc.output('arraybuffer'), 'application/pdf');
+  saveFile('listvinir-2026.pdf', doc.output('arraybuffer'), 'application/pdf');
 }
 
 const tierKey = { ...Object.fromEntries(Object.entries(tierName).map(([k, n]) => [n, k])), Elska: 'love', 'Líkar vel': 'like', Sleppa: 'pass' };
