@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { useApp } from '../context.js';
 import { TIERS, WORKS, byId, estimate, remaining, shortPrice, startDuel, tierName, title, undoDuel } from '../lib/ranking.js';
 import { SrcTag } from './shared.jsx';
 
-function Side({ id, res }) {
+function Side({ id, res, showPrice }) {
   const { chooseDuel, openWork } = useApp();
   const w = byId[id];
   return (
@@ -14,7 +15,7 @@ function Side({ id, res }) {
         <div>
           <p className="a">{w.artist}</p>
           <p className="t">{title(w)}</p>
-          <p className="pr num">{shortPrice(w)} <SrcTag work={w} /></p>
+          {showPrice && <p className="pr num">{shortPrice(w)} <SrcTag work={w} /></p>}
         </div>
         <button className="link" onClick={() => openWork(id)}>Nánar</button>
       </div>
@@ -25,6 +26,7 @@ function Side({ id, res }) {
 export default function Duel() {
   const { state, apply, chooseDuel } = useApp();
   const d = state.duel;
+  const [showPrice, setShowPrice] = useState(false);
 
   if (!d) {
     const all = WORKS.length;
@@ -70,10 +72,11 @@ export default function Duel() {
       </div>
       <div className="prog"><i style={{ width: `${pct}%` }}></i></div>
       <div className="vs">
-        <Side id={left} res={left === d.cur ? 'cur' : 'pivot'} />
-        <Side id={right} res={right === d.cur ? 'cur' : 'pivot'} />
+        <Side id={left} res={left === d.cur ? 'cur' : 'pivot'} showPrice={showPrice} />
+        <Side id={right} res={right === d.cur ? 'cur' : 'pivot'} showPrice={showPrice} />
       </div>
       <div className="duelbar">
+        <button className="link" onClick={() => setShowPrice((v) => !v)}>{showPrice ? 'Fela verð' : 'Sýna verð'}</button>
         <button className="link" data-duel="tie" onClick={() => chooseDuel('tie')}>Get ekki valið</button>
         <button className="link" data-duel="undo" disabled={!d.hist.length} onClick={() => apply(undoDuel)}>Til baka</button>
         <button className="link" data-duel="quit" onClick={() => apply((s) => { s.duel = null; })}>Hætta í einvíginu</button>
